@@ -12,10 +12,10 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import java.util.Map;
 
 public class TemperaturasServicio {
 
-    //pa cargar datos
     public static List<RegistroTemperatura> getDatos(String nombreArchivo) {
         var formatoFecha = DateTimeFormatter.ofPattern("d/M/yyyy");
         try (Stream<String> lineasArchivo = Files.lines(Paths.get(nombreArchivo))) {
@@ -32,7 +32,6 @@ public class TemperaturasServicio {
         }
     }
 
-    // sacando el registro con temperatura máxima por fecha
     public static RegistroTemperatura getMasCalurosaPorFecha(List<RegistroTemperatura> registros, LocalDate fecha) {
         return registros.stream()
                 .filter(r -> r.getFecha().equals(fecha))
@@ -40,11 +39,19 @@ public class TemperaturasServicio {
                 .orElse(null);
     }
 
-    //sacando el registro con temperatura mínima por fecha
     public static RegistroTemperatura getMenosCalurosaPorFecha(List<RegistroTemperatura> registros, LocalDate fecha) {
         return registros.stream()
                 .filter(r -> r.getFecha().equals(fecha))
                 .min(Comparator.comparingDouble(RegistroTemperatura::getTemperatura))
                 .orElse(null);
+    }
+
+    public static Map<String, Double> getPromedioPorCiudad(List<RegistroTemperatura> registros, LocalDate fechaInicio, LocalDate fechaFin) {
+        return registros.stream()
+                .filter(r -> !r.getFecha().isBefore(fechaInicio) && !r.getFecha().isAfter(fechaFin))
+                .collect(Collectors.groupingBy(
+                    RegistroTemperatura::getCiudad,
+                    Collectors.averagingDouble(RegistroTemperatura::getTemperatura)
+                ));
     }
 }

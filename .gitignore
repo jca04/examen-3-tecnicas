@@ -2,7 +2,6 @@
 *.class
 
 # Archivos empaquetados
-*.jar
 *.war
 *.ear
 *.zip
